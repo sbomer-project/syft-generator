@@ -40,44 +40,44 @@ class GeneratorServiceTest {
 
     @Test
     void testHappyPathScheduling() {
-        // 1. Arrange
+
         String genId = "G123";
         GenerationRequestSpec spec = createDummySpec();
 
-        // 2. Act: Queue the request
+        // Queue the request
         generatorService.acceptRequest(genId, spec);
 
-        // 3. Act: Trigger the scheduler manually (since we are in a test)
+        // Trigger the scheduler manually
         generatorService.processQueue();
 
-        // 4. Assert: Executor was called to create the TaskRun
+        // Executor was called to create the TaskRun
         Mockito.verify(executor, Mockito.times(1)).scheduleGeneration(ArgumentMatchers.argThat(task ->
                 task.generationId().equals(genId) && task.retryCount() == 0
         ));
 
-        // 5. Assert: Notification sent (GENERATING)
+        // Notification sent (GENERATING)
         Mockito.verify(notifier).notifyStatus(ArgumentMatchers.eq(genId), ArgumentMatchers.eq(GenerationStatus.GENERATING), ArgumentMatchers.any(), ArgumentMatchers.isNull());
     }
 
     @Test
     void testThrottling() {
-        // 1. Arrange: Simulate cluster is FULL (Max is 20 by default)
+        // Simulate cluster is FULL (Max is 20 by default)
         Mockito.when(executor.countActiveExecutions()).thenReturn(20);
 
-        // 2. Act: Queue a request
+        // Queue a request
         generatorService.acceptRequest("G999", createDummySpec());
 
-        // 3. Act: Trigger scheduler
+        // Trigger scheduler
         generatorService.processQueue();
 
-        // 4. Assert: NOTHING happened because cluster is full
+        // NOTHING should happen because cluster is full
         Mockito.verify(executor, Mockito.never()).scheduleGeneration(ArgumentMatchers.any());
         Mockito.verify(notifier, Mockito.never()).notifyStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
     }
 
     @Test
     void testOomRetryLogic() {
-        // 1. Arrange: We have an active task running
+        // We have an active task running
         String genId = "G-OOM";
         GenerationRequestSpec spec = createDummySpec();
 
@@ -88,13 +88,13 @@ class GeneratorServiceTest {
         // Reset mocks to clear the initial interactions
         Mockito.clearInvocations(executor, notifier);
 
-        // 2. Act: Simulate the Reconciler reporting an OOM Failure
+        // Simulate the Reconciler reporting an OOM Failure
         generatorService.handleUpdate(genId, GenerationStatus.FAILED, "OOMKilled", null);
 
-        // 3. Assert: It should NOT notify the core system (Silent Retry)
+        // It should NOT notify the core system (Silent Retry)
         Mockito.verify(notifier, Mockito.never()).notifyStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
 
-        // 4. Assert: It SHOULD re-queue the task internally
+        // It SHOULD re-queue the task internally
         // We trigger the scheduler again to pick up the "Retry Task"
         generatorService.processQueue();
 
@@ -108,7 +108,6 @@ class GeneratorServiceTest {
         Assertions.assertEquals("2Gi", retryTask.memoryOverride());
     }
 
-    // --- Helper ---
     private GenerationRequestSpec createDummySpec() {
         return GenerationRequestSpec.newBuilder()
                 .setGenerationId("ignored-here")

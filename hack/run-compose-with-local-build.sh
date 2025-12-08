@@ -40,22 +40,21 @@ export SBOMER_STORAGE_URL="http://${GATEWAY_IP}:8085"
 # Path to compose file
 COMPOSE_FILE="./podman/podman-compose.yml"
 
+echo "--- Apply own local syft generator task to Minikube ---"
+bash ./hack/apply-local-syft-generator-task-to-minikube.sh
+
+echo "--- Building local syft-agent image inside of Minikube ---"
+bash ./hack/build-local-syft-agent-into-minikube.sh
+
 echo "--- Building the component with schemas ---"
 bash ./hack/build-with-schemas.sh
 
-echo "--- Switching to podman folder ---"
-pushd podman
+echo "--- Switching to sbomer-local-dev folder ---"
+pushd sbomer-local-dev
 
-echo "--- Creating bindmounts --"
-[ ! -d "./kafka-data" ] && mkdir ./kafka-data && podman unshare chown 1001:0 ./kafka-data
-[ ! -d "./kafka-config" ] && mkdir ./kafka-config && podman unshare chown 1001:0 ./kafka-config
-
-echo "--- Removing previous podman-compose and Kafka data --"
-podman-compose down -v
-rm -rf kafka-data/
-mkdir -p kafka-data
-
-echo "--- Starting podman-compose ---"
-podman-compose up --build --force-recreate
+# podman-compose -f podman-compose.yml -f ../../podman/podman-compose.override.yaml down -v
+# Run podman-compose with override compose file that builds syft-generator component locally instead of Quay latest
+# podman-compose -f podman-compose.yml -f ../../podman/podman-compose.override.yaml up --build
+bash run-compose.sh --override ../podman/podman-compose.override.yaml
 
 echo "--- Local podman-compose is now running ---"

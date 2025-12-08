@@ -1,19 +1,14 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: generator-syft
+  name: {{ .Values.task.name }}
+  labels:
+    {{- include "syft-generator.labels" . | nindent 4 }}
 spec:
   results:
     - name: sbom-url
       description: "The JSON map of uploaded filenames to their permanent URLs"
   params:
-    # --- CONFIGURATION PARAMETERS ---
-    - name: agent-image
-      description: "The image containing Syft and local tools"
-      default: "localhost/syft-agent:latest"
-    - name: agent-pull-policy
-      description: "Pull policy for local agent"
-      default: "Never"
     # ----------------------------------
     - name: generation-id
       type: string
@@ -35,8 +30,8 @@ spec:
       default: "60"
   steps:
     - name: inspect
-      image: $(params.agent-image)
-      imagePullPolicy: $(params.agent-pull-policy)
+      image: "{{ .Values.task.agent.image }}:{{ .Values.task.agent.tag | default .Chart.AppVersion }}"
+      imagePullPolicy: {{ .Values.task.agent.pullPolicy }}
       resources:
         requests:
           cpu: 50m
@@ -119,8 +114,8 @@ spec:
           name: shared
 
     - name: generate
-      image: $(params.agent-image)
-      imagePullPolicy: $(params.agent-pull-policy)
+      image: "{{ .Values.task.agent.image }}:{{ .Values.task.agent.tag | default .Chart.AppVersion }}"
+      imagePullPolicy: {{ .Values.task.agent.pullPolicy }}
       resources:
         requests:
           cpu: 500m
@@ -166,8 +161,8 @@ spec:
           name: shared
 
     - name: upload
-      image: $(params.agent-image)
-      imagePullPolicy: $(params.agent-pull-policy)
+      image: "{{ .Values.task.agent.image }}:{{ .Values.task.agent.tag | default .Chart.AppVersion }}"
+      imagePullPolicy: {{ .Values.task.agent.pullPolicy }}
       env:
         - name: API_KEY
           valueFrom:

@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  syft-generator:
+    build:
+      # Context is one level up (the project root where this script started)
+      context: ../../
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      # Pass the calculated gateway URL to the container
+      - SBOMER_STORAGE_URL=${SBOMER_STORAGE_URL}

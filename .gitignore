@@ -35,4 +35,10 @@ sbomer-contracts/
 # Kafka local dev instance logs
 podman/kafka-data/
 
+# Ignore the local dev repo
+sbomer-local-dev/
+
+# Ignore tmp for temporary files
+tmp/
+
 target/

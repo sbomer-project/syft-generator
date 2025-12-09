@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
 
+# If a change was made to the syft-generation-task.yaml in the helm chart, please use this script to apply the change to minikube
+
 # Apply local TaskRun to Minikube for Syft generation
-CHART_PATH="./helm/syft-generator"
+CHART_PATH="./helm/syft-generator-chart"
 OUTPUT_DIR="./tmp"
 OUTPUT_FILE="${OUTPUT_DIR}/syft-generation-task.yaml"
 

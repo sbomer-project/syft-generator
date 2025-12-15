@@ -56,6 +56,14 @@ config:
     bootstrapServers: "kafka:9092"
     schemaRegistryUrl: "http://schema-registry:8080/apis/registry/v2"
 
+  quarkus:
+    # Leave empty to let Quarkus auto-discover the K8s API (Standard K8s behavior)
+    # The Super-Chart can override this if needed.
+    kubernetesClientMasterUrl: ""
+    # Default to false (Secure). 
+    # Can override this to "true" for local dev/minikube.
+    trustCerts: "false"
+
 # --- TEKTON TASK CONFIG ---
 task:
   name: generator-syft

@@ -42,7 +42,7 @@ rbac:
     # Include Tekton since we are using TaskRuns
     - apiGroups: ["tekton.dev"]
       resources: ["taskruns", "pipelineruns", "tasks"]
-      verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+      verbs: ["create", "get", "list", "watch", "update", "patch", "delete", "deletecollection"]
 
 # --- APPLICATION CONFIG ---
 config:

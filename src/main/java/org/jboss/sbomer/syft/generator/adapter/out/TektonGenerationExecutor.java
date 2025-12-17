@@ -1,5 +1,6 @@
 package org.jboss.sbomer.syft.generator.adapter.out;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.sbomer.syft.generator.core.domain.model.GenerationTask;
 import org.jboss.sbomer.syft.generator.core.port.spi.GenerationExecutor;
 import org.jboss.sbomer.syft.generator.core.service.TaskRunFactory;
@@ -20,6 +21,9 @@ public class TektonGenerationExecutor implements GenerationExecutor {
     @Inject
     TaskRunFactory taskRunFactory;
 
+    @ConfigProperty(name = "quarkus.kubernetes-client.namespace")
+    String namespace;
+
     private static final String GENERATION_ID_LABEL = "sbomer.jboss.org/generation-id";
     private static final String GENERATOR_TYPE_LABEL = "sbomer.jboss.org/generator-type";
     private static final String GENERATOR_TYPE_VALUE = "syft";
@@ -32,13 +36,14 @@ public class TektonGenerationExecutor implements GenerationExecutor {
         TaskRun taskRun = taskRunFactory.createTaskRun(generationTask);
 
         // Execute against the cluster
-        kubernetesClient.resources(TaskRun.class).resource(taskRun).create();
+        kubernetesClient.resources(TaskRun.class).inNamespace(namespace).resource(taskRun).create();
     }
 
     @Override
     public void abortGeneration(String generationId) {
         log.info("Aborting generation: {}", generationId);
         kubernetesClient.resources(TaskRun.class)
+                .inNamespace(namespace)
                 .withLabel(GENERATION_ID_LABEL, generationId)
                 .delete();
     }
@@ -48,6 +53,7 @@ public class TektonGenerationExecutor implements GenerationExecutor {
     public void cleanupGeneration(String generationId) {
         log.info("Cleaning up generation: {}", generationId);
         kubernetesClient.resources(TaskRun.class)
+                .inNamespace(namespace)
                 .withLabel(GENERATION_ID_LABEL, generationId)
                 .delete();
     }
@@ -56,7 +62,7 @@ public class TektonGenerationExecutor implements GenerationExecutor {
     public int countActiveExecutions() {
         // Count TaskRuns for THIS generator that are NOT finished.
         // This is the input for the Throttling logic.
-        return (int) kubernetesClient.resources(TaskRun.class)
+        return (int) kubernetesClient.resources(TaskRun.class).inNamespace(namespace)
                 .withLabel(GENERATOR_TYPE_LABEL, GENERATOR_TYPE_VALUE)
                 .list()
                 .getItems()

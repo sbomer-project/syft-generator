@@ -38,6 +38,9 @@ podman/kafka-data/
 # Ignore the local dev repo
 sbomer-local-dev/
 
+# Ignore the sbomer-platform helm chart
+sbomer-platform/
+
 # Ignore tmp for temporary files
 tmp/
 

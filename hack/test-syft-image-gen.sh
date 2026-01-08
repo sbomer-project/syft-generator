@@ -2,8 +2,6 @@
 
 # Usage: ./test-syft-image-gen.sh [API_URL] [IMAGE_TO_SCAN]
 
-set -e
-
 # Configuration
 API_URL="${1:-http://localhost:8080}"
 IMAGE="${2:-quay.io/pct-security/mequal:latest}"
@@ -33,9 +31,23 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
   -d "$PAYLOAD" \
   "$ENDPOINT")
 
+# Capture the exit code of the curl command
+CURL_EXIT_CODE=$?
+if [ $CURL_EXIT_CODE -ne 0 ]; then
+    echo "Error: Connection failed (curl exit code: $CURL_EXIT_CODE)"
+    exit 1
+fi
+
 # Process Response
 HTTP_BODY=$(echo "$RESPONSE" | sed '$d')
 HTTP_STATUS=$(echo "$RESPONSE" | tail -n 1)
+
+# Ensure HTTP_STATUS is a 3-digit number
+if [[ ! "$HTTP_STATUS" =~ ^[0-9]{3}$ ]]; then
+    echo "Error: Failed to parse HTTP status code."
+    echo "Full Response: $RESPONSE"
+    exit 1
+fi
 
 if [[ "$HTTP_STATUS" == "202" ]]; then
     echo "Status: Success ($HTTP_STATUS)"

@@ -69,7 +69,7 @@ config:
 
 # --- TEKTON TASK CONFIG ---
 task:
-  name: generator-syft
+  name: sbomer-syft-generator-taskrun
   otel:
     endpoint: "" # HTTP only
   # The "Agent" image used inside the TaskRun

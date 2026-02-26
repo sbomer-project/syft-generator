@@ -115,7 +115,7 @@ spec:
         fi
 
         arch_count=$(find $(workspaces.data.path) -name skopeo.json | wc -l)
-        otel_gauge "sbomer.syft.generator.taskrun.architectures" "$arch_count"
+        otel_metric "sbomer.taskrun.image.architectures" "$arch_count"
       volumeMounts:
         - mountPath: /shared
           name: shared
@@ -168,8 +168,8 @@ spec:
           arch=$(basename "$dir")
           os=$(basename "$(dirname "$dir")")
           retry "syft-scan-${os}-${arch}" syft scan registry:${image} -o cyclonedx-json@1.6=${dir}/bom.json
-          otel_gauge "sbomer.taskrun.sbom.size_bytes" "$(stat -c%s "${dir}/bom.json")"
-          otel_gauge "sbomer.taskrun.sbom.components" "$(jq '.components | length' "${dir}/bom.json")"
+          otel_metric "sbomer.taskrun.sbom.bytes" "$(stat -c%s "${dir}/bom.json")"
+          otel_metric "sbomer.taskrun.sbom.components" "$(jq '.components | length' "${dir}/bom.json")"
         done
 
         # NOTE: Java processing logic (Catalog/Adjust) removed and will be included as part of Enhancers
@@ -241,8 +241,8 @@ spec:
         }
         otel_trace "curl-upload" upload_files
 
-        otel_gauge "sbomer.taskrun.upload.files" "$(echo "$RESPONSE" | jq 'length')"
-        otel_gauge "sbomer.taskrun.upload.total_bytes" "$(sed 's/-F files=@//' curl_args.txt | xargs stat -c%s | awk '{s+=$1} END{print s}')"
+        otel_metric "sbomer.taskrun.upload.files" "$(echo "$RESPONSE" | jq 'length')"
+        otel_metric "sbomer.taskrun.upload.bytes" "$(sed 's/-F files=@//' curl_args.txt | xargs stat -c%s | awk '{s+=$1} END{print s}')"
 
         echo "Full Response:"
         echo "$RESPONSE" | jq .

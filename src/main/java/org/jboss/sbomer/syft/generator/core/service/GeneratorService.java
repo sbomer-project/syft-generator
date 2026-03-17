@@ -139,6 +139,7 @@ public class GeneratorService implements GenerationOrchestrator {
                     span.setStatus(StatusCode.ERROR, e.getMessage());
                     notifier.notifyStatus(task.generationId(), GenerationStatus.FAILED, e.getMessage(), null);
                     failureNotifier.notify(FailureUtility.buildFailureSpecFromException(e), task.generationId(), null);
+                    doCleanupIfFinished(task.generationId(), GenerationStatus.FAILED);
                 }
             } finally {
                 span.end();
@@ -151,6 +152,7 @@ public class GeneratorService implements GenerationOrchestrator {
         if (task == null) {
             log.warn("Cannot retry OOM for {}, task state lost.", generationId);
             notifier.notifyStatus(generationId, GenerationStatus.FAILED, "OOMKilled (Retry failed - state lost)", null);
+            doCleanupIfFinished(generationId, GenerationStatus.FAILED);
             return;
         }
 

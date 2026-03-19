@@ -77,6 +77,7 @@ public class GeneratorService implements GenerationOrchestrator {
 
         // If we hit OOM, we retry with more resources
         if (status == GenerationStatus.FAILED && "OOMKilled".equals(reason)) {
+            executor.cleanupGeneration(generationId);
             handleOomRetry(generationId);
             return; // Stop here. Method will do its own notification if needed
         }

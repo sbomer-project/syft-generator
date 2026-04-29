@@ -43,6 +43,10 @@ rbac:
     - apiGroups: ["tekton.dev"]
       resources: ["taskruns", "pipelineruns", "tasks"]
       verbs: ["create", "get", "list", "watch", "update", "patch", "delete", "deletecollection"]
+    # Include Kueue for queue management
+    - apiGroups: ["kueue.x-k8s.io"]
+      resources: ["localqueues", "clusterqueues", "resourceflavors", "workloads"]
+      verbs: ["get", "list", "watch"]
 
 # --- APPLICATION CONFIG ---
 config:
@@ -186,7 +190,7 @@ kueue:
   
   # ClusterQueue configuration (cluster-scoped)
   clusterQueue:
-    name: syft-cluster-queue
+    name: syft-generator-cluster-queue
     queueingStrategy: BestEffortFIFO
     # Resource quotas for the cluster queue
     resources:
@@ -199,4 +203,4 @@ kueue:
   
   # LocalQueue configuration (namespace-scoped)
   localQueue:
-    name: syft-local-queue
+    name: syft-generator-local-queue

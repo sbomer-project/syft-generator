@@ -34,14 +34,14 @@ public class TaskRunFactory {
     String storageUrl;
 
     // Kueue Integration
-    @ConfigProperty(name = "sbomer.generator.kueue.queue-name", defaultValue = "syft-local-queue")
+    @ConfigProperty(name = "sbomer.generator.kueue.queue-name", defaultValue = "syft-generator-local-queue")
     String kueueQueueName;
 
     private static final String LABEL_GENERATION_ID = "sbomer.jboss.org/generation-id";
     private static final String LABEL_GENERATOR_TYPE = "sbomer.jboss.org/generator-type";
     private static final String GENERATOR_TYPE_VALUE = "syft";
     private static final String ANNOTATION_TRACEPARENT = "sbomer.jboss.org/traceparent";
-    private static final String KUEUE_QUEUE_ANNOTATION = "kueue.x-k8s.io/queue-name";
+    private static final String ANNOTATION_KUEUE_QUEUE = "kueue.x-k8s.io/queue-name";
 
     public TaskRun createTaskRun(GenerationTask generationTask) {
         Objects.requireNonNull(generationTask, "generationTask cannot be null");
@@ -65,7 +65,7 @@ public class TaskRunFactory {
         labels.put(LABEL_GENERATION_ID, generationId);
         labels.put(LABEL_GENERATOR_TYPE, GENERATOR_TYPE_VALUE);
         labels.put("app.kubernetes.io/managed-by", "sbomer-syft-generator");
-        labels.put(KUEUE_QUEUE_ANNOTATION, kueueQueueName);
+        labels.put(ANNOTATION_KUEUE_QUEUE, kueueQueueName);
 
         // 3. Build the SPEC separately (This fixes the fluent chain issues)
         TaskRunSpecBuilder specBuilder = new TaskRunSpecBuilder()

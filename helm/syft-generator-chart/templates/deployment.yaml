@@ -90,8 +90,10 @@ spec:
               value: {{ include "syft-generator-chart.serviceAccountName" . | quote }}
 
             # Kueue Configuration
+            {{- if .Values.kueue.enabled }}
             - name: SBOMER_GENERATOR_KUEUE_QUEUE_NAME
               value: {{ .Values.kueue.localQueue.name | quote }}
+            {{- end }}
 
             # Needed for cluster deployment
             {{- if .Values.config.quarkus.kubernetesClientMasterUrl }}

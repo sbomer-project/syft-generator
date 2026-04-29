@@ -1,9 +1,11 @@
-{{- if .Values.kueue.enabled }}
+{{- if .Values.kueue.enabled -}}
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: LocalQueue
 metadata:
   name: {{ .Values.kueue.localQueue.name }}
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "syft-generator-chart.labels" . | nindent 4 }}
 spec:
   clusterQueue: {{ .Values.kueue.clusterQueue.name }}
 {{- end }}

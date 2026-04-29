@@ -53,27 +53,27 @@ The generated SBOMs are uploaded directly from the TaskRun pod to the [Manifest 
 
 ### Application Properties
 
-| Property | Description | Default                         |
-| :--- | :--- |:--------------------------------|
-| `sbomer.generator.name` | The name used to filter incoming Kafka events. | `syft`                          |
-| `sbomer.generator.syft.task-name` | The Tekton Task name to instantiate. | `generator-syft`                |
-| `sbomer.generator.kueue.queue-name` | The Kueue LocalQueue name for TaskRuns. | `syft-local-queue`              |
-| `sbomer.generator.oom-retries` | Number of times to retry on OOM. | `3`                             |
-| `sbomer.generator.memory-multiplier` | Factor to increase memory by on retry (e.g. 1.5x). | `1.5`                           |
-| `sbomer.storage.url` | Internal URL of the storage service reachable by Pods. | `http://<get-minikube-ip>:8085` |
-| `quarkus.kubernetes-client.namespace` | The namespace where TaskRuns are created. | `default`                       |
+| Property                              | Description                                            | Default                         |
+|:--------------------------------------|:-------------------------------------------------------|:--------------------------------|
+| `sbomer.generator.name`               | The name used to filter incoming Kafka events.         | `syft`                          |
+| `sbomer.generator.syft.task-name`     | The Tekton Task name to instantiate.                   | `generator-syft`                |
+| `sbomer.generator.kueue.queue-name`   | The Kueue LocalQueue name for TaskRuns.                | `syft-generator-local-queue`    |
+| `sbomer.generator.oom-retries`        | Number of times to retry on OOM.                       | `3`                             |
+| `sbomer.generator.memory-multiplier`  | Factor to increase memory by on retry (e.g. 1.5x).     | `1.5`                           |
+| `sbomer.storage.url`                  | Internal URL of the storage service reachable by Pods. | `http://<get-minikube-ip>:8085` |
+| `quarkus.kubernetes-client.namespace` | The namespace where TaskRuns are created.              | `default`                       |
 
 ### Kueue Configuration (Helm Values)
 
-| Property | Description | Default |
-| :--- | :--- | :--- |
-| `kueue.localQueue.name` | LocalQueue name (namespace-scoped) | `syft-local-queue` |
-| `kueue.clusterQueue.name` | ClusterQueue name (cluster-scoped) | `syft-cluster-queue` |
-| `kueue.clusterQueue.quotas.pods` | Max concurrent TaskRuns | `20` |
-| `kueue.clusterQueue.quotas.cpu` | CPU quota for queue | `100` |
-| `kueue.clusterQueue.quotas.memory` | Memory quota for queue | `200Gi` |
-| `kueue.clusterQueue.queueingStrategy` | Queuing strategy (StrictFIFO or BestEffortFIFO) | `StrictFIFO` |
-| `kueue.resourceFlavor.name` | ResourceFlavor name | `default-flavor` |
+| Property                              | Description                                     | Default                        |
+|:--------------------------------------|:------------------------------------------------|:-------------------------------|
+| `kueue.localQueue.name`               | LocalQueue name (namespace-scoped)              | `syft-generator-local-queue`   |
+| `kueue.clusterQueue.name`             | ClusterQueue name (cluster-scoped)              | `syft-generator-cluster-queue` |
+| `kueue.clusterQueue.quotas.pods`      | Max concurrent TaskRuns                         | `20`                           |
+| `kueue.clusterQueue.quotas.cpu`       | CPU quota for queue                             | `100`                          |
+| `kueue.clusterQueue.quotas.memory`    | Memory quota for queue                          | `200Gi`                        |
+| `kueue.clusterQueue.queueingStrategy` | Queuing strategy (StrictFIFO or BestEffortFIFO) | `StrictFIFO`                   |
+| `kueue.resourceFlavor.name`           | ResourceFlavor name                             | `default-flavor`               |
 
 ---
 

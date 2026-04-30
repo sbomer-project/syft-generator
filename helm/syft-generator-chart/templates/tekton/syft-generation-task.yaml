@@ -51,6 +51,8 @@ spec:
           value: "$(params.retry-delay)"
         - name: RETRY_MAX_DELAY
           value: "$(params.retry-max-delay)"
+        - name: DOCKER_CONFIG
+          value: "/tekton/creds/.docker"
       resources:
         requests:
           cpu: 50m
@@ -72,7 +74,6 @@ spec:
         echo "Fetching raw manifest for $(params.image)"
         fetch_raw() {
           skopeo inspect --no-tags --raw docker://$(params.image) \
-            --authfile=/tekton/creds/.docker/config.json \
             > "$(workspaces.data.path)/raw.json"
         }
         retry "skopeo-inspect-raw" fetch_raw
@@ -80,7 +81,6 @@ spec:
         echo "Inspecting $(params.image)"
         fetch_inspect() {
           skopeo inspect --no-tags docker://$(params.image) \
-            --authfile=/tekton/creds/.docker/config.json \
             > "$(workspaces.data.path)/image.json"
         }
         retry "skopeo-inspect" fetch_inspect
@@ -98,7 +98,6 @@ spec:
             fetch_variant() {
               skopeo --override-os "${os}" --override-arch "${arch}" inspect --no-tags \
                 docker://"${name}@${digest}" \
-                --authfile=/tekton/creds/.docker/config.json \
                 > "$(workspaces.data.path)/$os/$arch/skopeo.json"
             }
             retry "skopeo-inspect-${os}-${arch}" fetch_variant
@@ -121,6 +120,8 @@ spec:
           name: shared
         - mountPath: /opt/otel
           name: otel-helpers
+        - mountPath: /tekton/creds/.docker
+          name: docker-config
 
     - name: generate
       image: "{{ .Values.task.agent.image }}:{{ .Values.task.agent.tag | default .Chart.AppVersion }}"
@@ -149,6 +150,8 @@ spec:
           value: "$(params.retry-max-delay)"
         - name: SYFT_LOG_LEVEL
           value: "info"
+        - name: DOCKER_CONFIG
+          value: "/tekton/creds/.docker"
       script: |
         #!/usr/bin/env bash
         set -Eeuo pipefail
@@ -179,6 +182,8 @@ spec:
           name: shared
         - mountPath: /opt/otel
           name: otel-helpers
+        - mountPath: /tekton/creds/.docker
+          name: docker-config
 
     - name: upload
       image: "{{ .Values.task.agent.image }}:{{ .Values.task.agent.tag | default .Chart.AppVersion }}"
@@ -268,3 +273,13 @@ spec:
     - name: otel-helpers
       configMap:
         name: {{ .Release.Name }}-otel-helpers
+    - name: docker-config
+      {{- if .Values.task.registryAuth.enabled }}
+      secret:
+        secretName: {{ .Values.task.registryAuth.secretName }}
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+      {{- else }}
+      emptyDir: { }
+      {{- end }}

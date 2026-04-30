@@ -80,6 +80,12 @@ task:
     # If tag is empty, the template will default to .Chart.AppVersion (The Git SHA)
     tag: ""
     pullPolicy: IfNotPresent
+  # Authentication Credentials for image registries
+  registryAuth:
+    # Enable mounting a custom dockerconfigjson secret
+    enabled: false
+    # The name of the kubernetes.io/dockerconfigjson secret in the same namespace
+    secretName: "syft-image-registry-credentials"
 
 # This is for setting Kubernetes Annotations to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/

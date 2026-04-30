@@ -52,7 +52,7 @@ spec:
         - name: RETRY_MAX_DELAY
           value: "$(params.retry-max-delay)"
         - name: DOCKER_CONFIG
-          value: "/tekton/creds/.docker"
+          value: "/opt/docker-config"
       resources:
         requests:
           cpu: 50m
@@ -120,7 +120,7 @@ spec:
           name: shared
         - mountPath: /opt/otel
           name: otel-helpers
-        - mountPath: /tekton/creds/.docker
+        - mountPath: /opt/docker-config
           name: docker-config
 
     - name: generate
@@ -151,7 +151,7 @@ spec:
         - name: SYFT_LOG_LEVEL
           value: "info"
         - name: DOCKER_CONFIG
-          value: "/tekton/creds/.docker"
+          value: "/opt/docker-config"
       script: |
         #!/usr/bin/env bash
         set -Eeuo pipefail
@@ -182,7 +182,7 @@ spec:
           name: shared
         - mountPath: /opt/otel
           name: otel-helpers
-        - mountPath: /tekton/creds/.docker
+        - mountPath: /opt/docker-config
           name: docker-config
 
     - name: upload

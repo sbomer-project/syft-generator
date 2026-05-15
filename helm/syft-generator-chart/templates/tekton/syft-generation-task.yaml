@@ -102,7 +102,7 @@ spec:
             }
             retry "skopeo-inspect-${os}-${arch}" fetch_variant
           done
-        elif jq -e "(if .mediaType == \"application/vnd.docker.distribution.manifest.v2+json\" then 1 else null end)" $(workspaces.data.path)/raw.json > /dev/null; then
+        elif jq -e "(if .mediaType == \"application/vnd.docker.distribution.manifest.v2+json\" or .mediaType == \"application/vnd.oci.image.manifest.v1+json\" then 1 else null end)" $(workspaces.data.path)/raw.json > /dev/null; then
             # Single image logic
             os=$(jq -cr '.Os' $(workspaces.data.path)/image.json)
             arch=$(jq -cr '.Architecture' $(workspaces.data.path)/image.json)
